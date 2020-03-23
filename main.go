@@ -1,12 +1,26 @@
 package main
 
 import (
+        "io/ioutil"
+        "encoding/json"
         "context"
         "fmt"
         "log"
         "github.com/elastic/go-elasticsearch/v7"
   esapi "github.com/elastic/go-elasticsearch/v7/esapi"
 )
+type Required struct {
+	//Health       string `json:"health"`
+	//Status       string `json:"status"`
+	Index        string `json:"index"`
+	//UUID         string `json:"uuid"`
+	//Pri          string `json:"pri"`
+	//Rep          string `json:"rep"`
+	//DocsCount    string `json:"docs.count"`
+	//DocsDeleted  string `json:"docs.deleted"`
+	//StoreSize    string `json:"store.size"`
+	//PriStoreSize string `json:"pri.store.size"`
+}
 
 func main() {
 //initializing my es client
@@ -22,18 +36,29 @@ es, _ := elasticsearch.NewClient(cfg)
 log.Println(es.Info())
 //
 req := esapi.CatIndicesRequest{
-Pretty:     true,
-Human:      true,
-Format:    "json",
+//Index:        []string{"stark","lannister"},
+Pretty:       true,
+Human:        true,
+Format:       "json",
 }
 //performing request with client
 res, err := req.Do(context.Background(),es)
 if err != nil {
 log.Fatalf("Error getting response : %s", err)
 }
-//printing my required result
-fmt.Println(res)
+defer res.Body.Close()
+body, err := ioutil.ReadAll(res.Body)
+if err != nil {
+    fmt.Println("oops!you have something missing")
+}
+var jsonData []Required
 
+err = json.Unmarshal([]byte(body), &jsonData) 
+if err != nil {
+                 panic(err)
+         }
+
+fmt.Println(jsonData)
 }
 
 
