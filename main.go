@@ -10,7 +10,7 @@ import (
   esapi "github.com/elastic/go-elasticsearch/v7/esapi"
 )
 type Required struct {
-	//Health       string `json:"health"`
+	Health       string `json:"health"`
 	//Status       string `json:"status"`
 	Index        string `json:"index"`
 	//UUID         string `json:"uuid"`
@@ -46,6 +46,7 @@ res, err := req.Do(context.Background(),es)
 if err != nil {
 log.Fatalf("Error getting response : %s", err)
 }
+//fmt.Println(res)
 defer res.Body.Close()
 body, err := ioutil.ReadAll(res.Body)
 if err != nil {
@@ -58,7 +59,20 @@ if err != nil {
                  panic(err)
          }
 
-fmt.Println(jsonData)
+//fmt.Println(jsonData)
+
+// Declared an empty interface of type Array
+var result []map[string]interface{}
+// Unmarshal or Decode the JSON to the interface.
+json.Unmarshal([]byte(body), &result)
+
+for key, result := range result {
+
+		fmt.Println("Reading Value for INDEX :", key)
+		//Reading each value by its key
+		fmt.Println("IndexName :", result["index"],
+			"|| Health :", result["health"],"|| Size :",result["store.size"])
+	}
 }
 
 
